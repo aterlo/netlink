@@ -345,3 +345,62 @@ func TestTbfAddTbfChangeDel(t *testing.T) {
 		t.Fatal("Failed to remove qdisc")
 	}
 }
+
+func TestClsactAddDel(t *testing.T) {
+	tearDown := setUpNetlinkTest(t)
+	defer tearDown()
+
+	if err := LinkAdd(&Dummy{LinkAttrs{Name: "foo"}}); err != nil {
+		t.Fatal(err)
+	}
+
+	link, err := LinkByName("foo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := LinkSetUp(link); err != nil {
+		t.Fatal(err)
+	}
+
+	qdisc := &Clsact{
+		QdiscAttrs: QdiscAttrs{
+			LinkIndex: link.Attrs().Index,
+			Handle:    0,
+			Parent:    HANDLE_INGRESS,
+		},
+	}
+	if err := QdiscAdd(qdisc); err != nil {
+		t.Fatal(err)
+	}
+
+	qdiscs, err := QdiscList(link)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(qdiscs) != 2 {
+		t.Fatal("Failed to add qdisc")
+	}
+
+	var clsactCount int
+	for _, q := range qdiscs {
+		_, ok := q.(*Clsact)
+		if ok {
+			clsactCount += 1
+		}
+	}
+	if clsactCount != 1 {
+		t.Fatal("No clsact Qdisc found or too many found.")
+	}
+
+	if err := QdiscDel(qdisc); err != nil {
+		t.Fatal(err)
+	}
+
+	qdiscs, err = QdiscList(link)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(qdiscs) != 1 {
+		t.Fatal("Failed to remove qdisc:", qdiscs)
+	}
+}

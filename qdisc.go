@@ -216,6 +216,18 @@ func (qdisc *Ingress) Type() string {
 	return "ingress"
 }
 
+type Clsact struct {
+	QdiscAttrs
+}
+
+func (qdisc *Clsact) Attrs() *QdiscAttrs {
+	return &qdisc.QdiscAttrs
+}
+
+func (qdisc *Clsact) Type() string {
+	return "clsact"
+}
+
 // GenericQdisc qdiscs represent types that are not currently understood
 // by this netlink library.
 type GenericQdisc struct {

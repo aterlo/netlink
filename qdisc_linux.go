@@ -229,6 +229,11 @@ func qdiscPayload(req *nl.NetlinkRequest, qdisc Qdisc) error {
 		if qdisc.Attrs().Parent != HANDLE_INGRESS {
 			return fmt.Errorf("Ingress filters must set Parent to HANDLE_INGRESS")
 		}
+	} else if _, ok := qdisc.(*Clsact); ok {
+		// Nothing to do.
+		if qdisc.Attrs().Parent != HANDLE_INGRESS {
+			return fmt.Errorf("Clsact filters must set Parent to HANDLE_INGRESS")
+		}
 	}
 
 	req.AddData(options)
@@ -303,6 +308,8 @@ func (h *Handle) QdiscList(link Link) ([]Qdisc, error) {
 					qdisc = &Htb{}
 				case "netem":
 					qdisc = &Netem{}
+				case "clsact":
+					qdisc = &Clsact{}
 				default:
 					qdisc = &GenericQdisc{QdiscType: qdiscType}
 				}
@@ -326,6 +333,8 @@ func (h *Handle) QdiscList(link Link) ([]Qdisc, error) {
 					if err := parseTbfData(qdisc, data); err != nil {
 						return nil, err
 					}
+				case "ingress":
+					// No options for ingress.
 				case "htb":
 					data, err := nl.ParseRouteAttr(attr.Value)
 					if err != nil {
@@ -338,8 +347,8 @@ func (h *Handle) QdiscList(link Link) ([]Qdisc, error) {
 					if err := parseNetemData(qdisc, attr.Value); err != nil {
 						return nil, err
 					}
-
-					// no options for ingress
+				case "clsact":
+					// no options for clsact.
 				}
 			}
 		}
