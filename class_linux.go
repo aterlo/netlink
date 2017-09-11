@@ -14,6 +14,9 @@ func NewHtbClass(attrs ClassAttrs, cattrs HtbClassAttrs) *HtbClass {
 	ceil := cattrs.Ceil / 8
 	buffer := cattrs.Buffer
 	cbuffer := cattrs.Cbuffer
+	quantum := cattrs.Quantum
+	level := cattrs.Level
+	prio := cattrs.Prio
 
 	if ceil == 0 {
 		ceil = rate
@@ -29,15 +32,18 @@ func NewHtbClass(attrs ClassAttrs, cattrs HtbClassAttrs) *HtbClass {
 	}
 	cbuffer = uint32(Xmittime(ceil, cbuffer))
 
+	// QDisc Rate2Quantum will be used to calculate a quantum value
+	// if Quantum is 0.
+
 	return &HtbClass{
 		ClassAttrs: attrs,
 		Rate:       rate,
 		Ceil:       ceil,
 		Buffer:     buffer,
 		Cbuffer:    cbuffer,
-		Quantum:    10,
-		Level:      0,
-		Prio:       0,
+		Quantum:    quantum,
+		Level:      level,
+		Prio:       prio,
 	}
 }
 
