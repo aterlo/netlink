@@ -404,3 +404,81 @@ func TestClsactAddDel(t *testing.T) {
 		t.Fatal("Failed to remove qdisc:", qdiscs)
 	}
 }
+
+func TestFqCodelAddDel(t *testing.T) {
+	tearDown := setUpNetlinkTest(t)
+	defer tearDown()
+	if err := LinkAdd(&Ifb{LinkAttrs{Name: "foo"}}); err != nil {
+		t.Fatal(err)
+	}
+	link, err := LinkByName("foo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := LinkSetUp(link); err != nil {
+		t.Fatal(err)
+	}
+	qdisc := &FqCodel{
+		QdiscAttrs: QdiscAttrs{
+			LinkIndex: link.Attrs().Index,
+			Handle:    MakeHandle(1, 0),
+			Parent:    HANDLE_ROOT,
+		},
+		Limit:       8888,
+		Flows:       9999,
+		Quantum:     1514,
+		Target:      100000,
+		CeThreshold: 200000,
+		Interval:    300000,
+		MemoryLimit: 1000000,
+		Ecn:         1,
+	}
+	if err := QdiscAdd(qdisc); err != nil {
+		t.Fatal(err)
+	}
+	qdiscs, err := SafeQdiscList(link)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(qdiscs) != 1 {
+		t.Fatal("Failed to add qdisc")
+	}
+	fqCodel, ok := qdiscs[0].(*FqCodel)
+	if !ok {
+		t.Fatal("Qdisc is the wrong type")
+	}
+	if fqCodel.Limit != 8888 {
+		t.Fatal("Wrong limit:", fqCodel.Limit)
+	}
+	if fqCodel.Flows != 9999 {
+		t.Fatal("Wrong flows:", fqCodel.Flows)
+	}
+	if fqCodel.Quantum != 1514 {
+		t.Fatal("Wrong quantum:", fqCodel.Quantum)
+	}
+	if fqCodel.Target != 99999 {
+		t.Fatal("Wrong target:", fqCodel.Target)
+	}
+	if fqCodel.CeThreshold != 199999 {
+		t.Fatal("Wrong ce threshold:", fqCodel.CeThreshold)
+	}
+	if fqCodel.Interval != 299999 {
+		t.Fatal("Wrong interval:", fqCodel.Interval)
+	}
+	if fqCodel.MemoryLimit != 1000000 {
+		t.Fatal("Wrong memory limit:", fqCodel.MemoryLimit)
+	}
+	if fqCodel.Ecn != 1 {
+		t.Fatal("Wrong ecn:", fqCodel.Ecn)
+	}
+	if err := QdiscDel(qdisc); err != nil {
+		t.Fatal(err)
+	}
+	qdiscs, err = SafeQdiscList(link)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(qdiscs) != 0 {
+		t.Fatal("Failed to remove qdisc")
+	}
+}

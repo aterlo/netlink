@@ -228,6 +228,27 @@ func (qdisc *Clsact) Type() string {
 	return "clsact"
 }
 
+type FqCodel struct {
+	QdiscAttrs
+	Limit         uint32
+	Flows         uint32
+	Quantum       uint32
+	Target        uint32 // Time in µs
+	CeThreshold   uint32 // Time in µs
+	Interval      uint32 // Time in µs
+	MemoryLimit   uint32
+	Ecn           uint32 // 1 or 0.
+	DropBatchSize uint32
+}
+
+func (qdisc *FqCodel) Attrs() *QdiscAttrs {
+	return &qdisc.QdiscAttrs
+}
+
+func (qdisc *FqCodel) Type() string {
+	return "fq_codel"
+}
+
 // GenericQdisc qdiscs represent types that are not currently understood
 // by this netlink library.
 type GenericQdisc struct {
