@@ -224,6 +224,34 @@ func qdiscPayload(req *nl.NetlinkRequest, qdisc Qdisc) error {
 		if reorder.Probability > 0 {
 			nl.NewRtAttrChild(options, nl.TCA_NETEM_REORDER, reorder.Serialize())
 		}
+	} else if fqCodel, ok := qdisc.(*FqCodel); ok {
+		if fqCodel.Limit != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_LIMIT, nl.Uint32Attr(fqCodel.Limit))
+		}
+		if fqCodel.Flows != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_FLOWS, nl.Uint32Attr(fqCodel.Flows))
+		}
+		if fqCodel.Quantum != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_QUANTUM, nl.Uint32Attr(fqCodel.Quantum))
+		}
+		if fqCodel.Target != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_TARGET, nl.Uint32Attr(fqCodel.Target))
+		}
+		if fqCodel.CeThreshold != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_CE_THRESHOLD, nl.Uint32Attr(fqCodel.CeThreshold))
+		}
+		if fqCodel.Interval != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_INTERVAL, nl.Uint32Attr(fqCodel.Interval))
+		}
+		if fqCodel.MemoryLimit != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_MEMORY_LIMIT, nl.Uint32Attr(fqCodel.MemoryLimit))
+		}
+		if fqCodel.Ecn != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_ECN, nl.Uint32Attr(fqCodel.Ecn))
+		}
+		if fqCodel.DropBatchSize != 0 {
+			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_DROP_BATCH_SIZE, nl.Uint32Attr(fqCodel.Ecn))
+		}
 	} else if _, ok := qdisc.(*Ingress); ok {
 		// ingress filters must use the proper handle
 		if qdisc.Attrs().Parent != HANDLE_INGRESS {
@@ -303,6 +331,8 @@ func (h *Handle) QdiscList(link Link) ([]Qdisc, error) {
 					qdisc = &Htb{}
 				case "netem":
 					qdisc = &Netem{}
+				case "fq_codel":
+					qdisc = &FqCodel{}
 				default:
 					qdisc = &GenericQdisc{QdiscType: qdiscType}
 				}
@@ -326,6 +356,8 @@ func (h *Handle) QdiscList(link Link) ([]Qdisc, error) {
 					if err := parseTbfData(qdisc, data); err != nil {
 						return nil, err
 					}
+				case "ingress":
+					// no options for ingress
 				case "htb":
 					data, err := nl.ParseRouteAttr(attr.Value)
 					if err != nil {
@@ -338,8 +370,14 @@ func (h *Handle) QdiscList(link Link) ([]Qdisc, error) {
 					if err := parseNetemData(qdisc, attr.Value); err != nil {
 						return nil, err
 					}
-
-					// no options for ingress
+				case "fq_codel":
+					data, err := nl.ParseRouteAttr(attr.Value)
+					if err != nil {
+						return nil, err
+					}
+					if err := parseFqCodelData(qdisc, data); err != nil {
+						return nil, err
+					}
 				}
 			}
 		}
@@ -436,6 +474,34 @@ func parseTbfData(qdisc Qdisc, data []syscall.NetlinkRouteAttr) error {
 			tbf.Peakrate = native.Uint64(datum.Value[0:8])
 		case nl.TCA_TBF_PBURST:
 			tbf.Minburst = native.Uint32(datum.Value[0:4])
+		}
+	}
+	return nil
+}
+
+func parseFqCodelData(qdisc Qdisc, data []syscall.NetlinkRouteAttr) error {
+	native = nl.NativeEndian()
+	fqCodel := qdisc.(*FqCodel)
+	for _, datum := range data {
+		switch datum.Attr.Type {
+		case nl.TCA_FQ_CODEL_TARGET:
+			fqCodel.Target = native.Uint32(datum.Value[0:4])
+		case nl.TCA_FQ_CODEL_LIMIT:
+			fqCodel.Limit = native.Uint32(datum.Value[0:4])
+		case nl.TCA_FQ_CODEL_INTERVAL:
+			fqCodel.Interval = native.Uint32(datum.Value[0:4])
+		case nl.TCA_FQ_CODEL_ECN:
+			fqCodel.Ecn = native.Uint32(datum.Value[0:4])
+		case nl.TCA_FQ_CODEL_FLOWS:
+			fqCodel.Flows = native.Uint32(datum.Value[0:4])
+		case nl.TCA_FQ_CODEL_QUANTUM:
+			fqCodel.Quantum = native.Uint32(datum.Value[0:4])
+		case nl.TCA_FQ_CODEL_CE_THRESHOLD:
+			fqCodel.CeThreshold = native.Uint32(datum.Value[0:4])
+		case nl.TCA_FQ_CODEL_DROP_BATCH_SIZE:
+			fqCodel.DropBatchSize = native.Uint32(datum.Value[0:4])
+		case nl.TCA_FQ_CODEL_MEMORY_LIMIT:
+			fqCodel.MemoryLimit = native.Uint32(datum.Value[0:4])
 		}
 	}
 	return nil
