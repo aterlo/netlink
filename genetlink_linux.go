@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"syscall"
 
-	"github.com/vishvananda/netlink/nl"
+	"github.com/aterlo/netlink"
 )
 
 type GenlOp struct {

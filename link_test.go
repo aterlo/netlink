@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vishvananda/netlink/nl"
+	"github.com/aterlo/netlink"
 	"github.com/vishvananda/netns"
 )
 

@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/vishvananda/netlink/nl"
+	"github.com/aterlo/netlink"
 )
 
 // Fw filter filters on firewall marks
