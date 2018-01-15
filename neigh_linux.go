@@ -5,7 +5,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/aterlo/netlink"
+	"github.com/aterlo/netlink/nl"
 )
 
 const (

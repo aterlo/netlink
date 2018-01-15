@@ -1,6 +1,6 @@
 package netlink
 
-import "github.com/aterlo/netlink"
+import "github.com/aterlo/netlink/nl"
 
 // Family type definitions
 const (

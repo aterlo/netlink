@@ -3,7 +3,7 @@ package netlink
 import (
 	"fmt"
 
-	"github.com/aterlo/netlink"
+	"github.com/aterlo/netlink/nl"
 )
 
 type Filter interface {

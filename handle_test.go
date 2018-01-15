@@ -15,7 +15,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/aterlo/netlink"
+	"github.com/aterlo/netlink/nl"
 	"github.com/vishvananda/netns"
 )
 
