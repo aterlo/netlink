@@ -6,7 +6,7 @@ import (
 
 	"github.com/vishvananda/netns"
 
-	"github.com/vishvananda/netlink/nl"
+	"github.com/aterlo/netlink/nl"
 )
 
 type XfrmMsg interface {

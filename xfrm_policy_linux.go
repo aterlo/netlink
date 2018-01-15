@@ -3,7 +3,7 @@ package netlink
 import (
 	"syscall"
 
-	"github.com/vishvananda/netlink/nl"
+	"github.com/aterlo/netlink/nl"
 )
 
 func selFromPolicy(sel *nl.XfrmSelector, policy *XfrmPolicy) {
