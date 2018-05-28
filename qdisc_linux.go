@@ -246,8 +246,10 @@ func qdiscPayload(req *nl.NetlinkRequest, qdisc Qdisc) error {
 		if fqCodel.MemoryLimit != 0 {
 			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_MEMORY_LIMIT, nl.Uint32Attr(fqCodel.MemoryLimit))
 		}
-		if fqCodel.Ecn != 0 {
+		if fqCodel.Ecn == 0 || fqCodel.Ecn == 1 {
 			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_ECN, nl.Uint32Attr(fqCodel.Ecn))
+		} else {
+			return fmt.Errorf("unknown value for ECN")
 		}
 		if fqCodel.DropBatchSize != 0 {
 			nl.NewRtAttrChild(options, nl.TCA_FQ_CODEL_DROP_BATCH_SIZE, nl.Uint32Attr(fqCodel.Ecn))
