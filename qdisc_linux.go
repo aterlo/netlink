@@ -342,6 +342,8 @@ func (h *Handle) QdiscList(link Link) ([]Qdisc, error) {
 					qdisc = &Clsact{}
 				case "fq_codel":
 					qdisc = &FqCodel{}
+				case "mq":
+					qdisc = &Mq{}
 				default:
 					qdisc = &GenericQdisc{QdiscType: qdiscType}
 				}
@@ -389,6 +391,8 @@ func (h *Handle) QdiscList(link Link) ([]Qdisc, error) {
 					if err := parseFqCodelData(qdisc, data); err != nil {
 						return nil, err
 					}
+				case "mq":
+					// No options for Mq.
 				}
 			}
 		}

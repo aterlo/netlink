@@ -263,3 +263,15 @@ func (qdisc *GenericQdisc) Attrs() *QdiscAttrs {
 func (qdisc *GenericQdisc) Type() string {
 	return qdisc.QdiscType
 }
+
+type Mq struct {
+	QdiscAttrs
+}
+
+func (qdisc *Mq) Attrs() *QdiscAttrs {
+	return &qdisc.QdiscAttrs
+}
+
+func (qdisc *Mq) Type() string {
+	return "mq"
+}

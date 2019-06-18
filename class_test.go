@@ -423,3 +423,57 @@ func TestHtbClassAddHtbClassChangeDel(t *testing.T) {
 		t.Fatal("Failed to remove qdisc")
 	}
 }
+
+//
+// This test is commented out because the mq qdisc requires a multi-queue NIC to work. I don't know of any
+// virtual interfaces that are multi-queue so this won't run without specific hardware. The way I've manually
+// tested this is to build a test binary (go test -race -c) and copy this to a box with compatible hardware.
+//
+/*
+func TestMqClassAddDel(t *testing.T) {
+	link, err := LinkByName("enp2s0f0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := LinkSetUp(link); err != nil {
+		t.Fatal(err)
+	}
+
+	qdisc := &Mq{
+		QdiscAttrs: QdiscAttrs{
+			LinkIndex: link.Attrs().Index,
+			Handle:    MakeHandle(1, 0),
+			Parent:    HANDLE_ROOT,
+		},
+	}
+	if err := QdiscReplace(qdisc); err != nil {
+		t.Fatal(err)
+	}
+
+	qdiscs, err := SafeQdiscList(link)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(qdiscs) != 5 {
+		t.Fatal("Failed to add qdisc")
+	}
+
+	_, ok := qdiscs[0].(*Mq)
+	if !ok {
+		t.Fatal("Qdisc is the wrong type")
+	}
+
+	classes, err := ClassList(link, MakeHandle(0x1, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(classes) != 64 {
+		t.Fatalf("Got %d classses expected %d", len(classes), 32)
+	}
+
+	_, ok = classes[0].(*GenericClass)
+	if !ok {
+		t.Fatal("Class is the wrong type")
+	}
+}
+*/
